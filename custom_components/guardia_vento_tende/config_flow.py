@@ -43,8 +43,8 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         if user_input is not None:
             return self.async_create_entry(title="", data=user_input)
 
-        data = self.config_entry.data
-        opts = self.config_entry.options
+        data = self.config_entry.data or {}
+        opts = self.config_entry.options or {}
         schema = vol.Schema({
             vol.Optional(CONF_THRESHOLD, default=opts.get(CONF_THRESHOLD, data.get(CONF_THRESHOLD, DEFAULT_THRESHOLD))): vol.Coerce(float),
             vol.Optional(CONF_SCAN_INTERVAL, default=opts.get(CONF_SCAN_INTERVAL, data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL))): vol.Coerce(int),

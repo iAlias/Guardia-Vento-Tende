@@ -12,7 +12,8 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import OpenMeteoClient
 from .const import (
-    CONF_LAT, CONF_LON, CONF_SCAN_INTERVAL, CONF_USE_HOME_COORDS, DOMAIN
+    CONF_LAT, CONF_LON, CONF_SCAN_INTERVAL, CONF_USE_HOME_COORDS, DOMAIN,
+    DEFAULT_LAT, DEFAULT_LON
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -30,20 +31,22 @@ class WindDataCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     async def _async_update_data(self) -> dict[str, Any]:
         try:
             data = await self._client.async_get_current()
+            if data.get("wind_speed_kmh") is None:
+                raise UpdateFailed("Dati vento non disponibili dalla fonte")
             return data
         except Exception as err:
-            raise UpdateFailed(str(err)) from err
+            raise UpdateFailed(f"Errore aggiornamento dati: {err}") from err
 
 async def create_coordinator(hass: HomeAssistant, entry: ConfigEntry) -> WindDataCoordinator:
-    data = entry.data
-    options = entry.options
+    data = entry.data or {}
+    options = entry.options or {}
 
-    use_home = options.get("use_home_coordinates", data.get("use_home_coordinates", True))
+    use_home = options.get(CONF_USE_HOME_COORDS, data.get(CONF_USE_HOME_COORDS, True))
 
-    lat = (options.get("latitude") if not use_home else hass.config.latitude) or hass.config.latitude
-    lon = (options.get("longitude") if not use_home else hass.config.longitude) or hass.config.longitude
+    lat = (options.get(CONF_LAT) if not use_home else (hass.config.latitude or DEFAULT_LAT)) or DEFAULT_LAT
+    lon = (options.get(CONF_LON) if not use_home else (hass.config.longitude or DEFAULT_LON)) or DEFAULT_LON
 
-    scan_int = int(options.get("scan_interval", data.get("scan_interval", 300)))
+    scan_int = int(options.get(CONF_SCAN_INTERVAL, data.get(CONF_SCAN_INTERVAL, 300)))
     _LOGGER.debug("Coordinator setup lat=%s lon=%s scan_interval=%s", lat, lon, scan_int)
 
     coordinator = WindDataCoordinator(hass, float(lat), float(lon), scan_int)

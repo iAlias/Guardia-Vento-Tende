@@ -23,12 +23,16 @@ class OpenMeteoClient:
     async def async_get_current(self) -> dict[str, Any]:
         url = OPEN_METEO_URL.format(lat=self._lat, lon=self._lon)
         _LOGGER.debug("Fetching Open-Meteo: %s", url)
-        async with async_timeout.timeout(15):
-            async with self._session.get(url) as resp:
-                resp.raise_for_status()
-                data = await resp.json()
+        try:
+            async with async_timeout.timeout(20):
+                async with self._session.get(url) as resp:
+                    resp.raise_for_status()
+                    data = await resp.json()
+        except Exception as err:
+            _LOGGER.error("Errore richiesta Open-Meteo: %s", err)
+            raise
 
-        current = data.get("current", {})
+        current = data.get("current") or {}
         result = {
             "wind_speed_kmh": current.get("wind_speed_10m"),
             "wind_gusts_kmh": current.get("wind_gusts_10m"),

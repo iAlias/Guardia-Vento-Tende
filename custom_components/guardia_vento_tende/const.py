@@ -16,4 +16,8 @@ DEFAULT_SCAN_INTERVAL = 300  # seconds
 DEFAULT_CYCLES_ABOVE = 2
 DEFAULT_CYCLES_BELOW = 2
 
+# Fallback: Catania centro (95125) approx, in caso le coord globali fossero None
+DEFAULT_LAT = 37.4923
+DEFAULT_LON = 15.0704
+
 SERVICE_REFRESH = "aggiorna_dati"
