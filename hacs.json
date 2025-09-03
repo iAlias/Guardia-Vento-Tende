@@ -1,0 +1,12 @@
+{
+  "name": "Guardia Vento Tende",
+  "domain": "guardia_vento_tende",
+  "country": [
+    "IT"
+  ],
+  "homeassistant": "2024.6.0",
+  "render_readme": true,
+  "zip_release": true,
+  "hide_default_branch": false,
+  "iot_class": "Cloud Polling"
+}

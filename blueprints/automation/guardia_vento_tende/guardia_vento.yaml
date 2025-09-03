@@ -1,0 +1,54 @@
+
+blueprint:
+  name: Guardia Vento - Notifica & Ritrae
+  description: Notifica e ritrae la tenda quando scatta l'allerta vento
+  domain: automation
+  input:
+    wind_alert_entity:
+      name: Sensore allerta vento
+      selector:
+        entity:
+          domain: binary_sensor
+    cover_target:
+      name: Cover tenda da sole (opzionale)
+      description: La cover da ritrarre (close_cover) quando c'è allerta
+      default: []
+      selector:
+        entity:
+          domain: cover
+    notify_target:
+      name: Notifica
+      description: Servizio di notifica (es. mobile_app_xxx)
+      default: []
+      selector:
+        device:
+          multiple: true
+    message_prefix:
+      name: Prefisso messaggio
+      default: "ALLERTA VENTO"
+trigger:
+  - platform: state
+    entity_id: !input wind_alert_entity
+    to: "on"
+action:
+  - variables:
+      wind_speed: "{{ state_attr((inputs.wind_alert_entity), 'wind_speed_kmh') }}"
+      wind_gusts: "{{ state_attr((inputs.wind_alert_entity), 'wind_gusts_kmh') }}"
+      threshold: "{{ state_attr((inputs.wind_alert_entity), 'threshold_kmh') }}"
+  - choose:
+      - conditions: []
+        sequence:
+          - if:
+              - condition: template
+                value_template: "{{ (inputs.cover_target | length) > 0 }}"
+            then:
+              - service: cover.close_cover
+                target:
+                  entity_id: !input cover_target
+  - service: notify.notify
+    data:
+      title: "{{ inputs.message_prefix }}"
+      message: >
+        Vento = {{ wind_speed }} km/h (raffiche {{ wind_gusts }} km/h) ≥ soglia {{ threshold }} km/h.
+        Ritraggo la tenda per sicurezza.
+mode: single

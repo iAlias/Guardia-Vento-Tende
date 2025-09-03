@@ -1,0 +1,13 @@
+{
+  "domain": "guardia_vento_tende",
+  "name": "Guardia Vento Tende",
+  "version": "1.1.0",
+  "documentation": "https://github.com/tu-utente/guardia-vento-tende",
+  "issue_tracker": "https://github.com/tu-utente/guardia-vento-tende/issues",
+  "codeowners": [
+    "@tu-utente-github"
+  ],
+  "iot_class": "cloud_polling",
+  "integration_type": "hub",
+  "requirements": []
+}

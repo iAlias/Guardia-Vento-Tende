@@ -1,0 +1,22 @@
+{
+  "title": "Guardia Vento Tende",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Impostazioni iniziali",
+        "description": "Configura la soglia vento, l'intervallo di aggiornamento e le coordinate.",
+        "data": {
+          "threshold_kmh": "Soglia vento (km/h)",
+          "scan_interval": "Intervallo aggiornamento (s)",
+          "use_home_coordinates": "Usa coordinate di Home Assistant",
+          "latitude": "Latitudine (opzionale)",
+          "longitude": "Longitudine (opzionale)",
+          "cycles_above_to_trigger": "Cicli sopra soglia per attivare",
+          "cycles_below_to_clear": "Cicli sotto soglia per disattivare"
+        }
+      }
+    },
+    "abort": {},
+    "error": {}
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "title": "Awnings Wind Guard (IT)",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Initial settings",
+        "description": "Set wind threshold, update interval and coordinates.",
+        "data": {
+          "threshold_kmh": "Wind threshold (km/h)",
+          "scan_interval": "Update interval (s)",
+          "use_home_coordinates": "Use Home Assistant coordinates",
+          "latitude": "Latitude (optional)",
+          "longitude": "Longitude (optional)",
+          "cycles_above_to_trigger": "Cycles above threshold to trigger",
+          "cycles_below_to_clear": "Cycles below threshold to clear"
+        }
+      }
+    },
+    "abort": {},
+    "error": {}
+  }
+}

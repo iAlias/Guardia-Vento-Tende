@@ -1,0 +1,4 @@
+
+aggiorna_dati:
+  name: Aggiorna dati
+  description: Forza l'aggiornamento dei dati meteo (velocità/raffiche vento).
