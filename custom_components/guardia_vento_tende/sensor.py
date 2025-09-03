@@ -1,10 +1,8 @@
 
 from __future__ import annotations
-from typing import Any, Optional
 
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.const import UnitOfSpeed
-from homeassistant.core import callback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -14,10 +12,7 @@ from .coordinator import WindDataCoordinator
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities):
     coordinator: WindDataCoordinator = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities([
-        WindSpeedSensor(coordinator),
-        WindGustsSensor(coordinator)
-    ])
+    async_add_entities([WindSpeedSensor(coordinator), WindGustsSensor(coordinator)])
 
 class WindBaseSensor(CoordinatorEntity[WindDataCoordinator], SensorEntity):
     _attr_should_poll = False

@@ -16,13 +16,6 @@ blueprint:
       selector:
         entity:
           domain: cover
-    notify_target:
-      name: Notifica
-      description: Servizio di notifica (es. mobile_app_xxx)
-      default: []
-      selector:
-        device:
-          multiple: true
     message_prefix:
       name: Prefisso messaggio
       default: "ALLERTA VENTO"
@@ -35,20 +28,16 @@ action:
       wind_speed: "{{ state_attr((inputs.wind_alert_entity), 'wind_speed_kmh') }}"
       wind_gusts: "{{ state_attr((inputs.wind_alert_entity), 'wind_gusts_kmh') }}"
       threshold: "{{ state_attr((inputs.wind_alert_entity), 'threshold_kmh') }}"
-  - choose:
-      - conditions: []
-        sequence:
-          - if:
-              - condition: template
-                value_template: "{{ (inputs.cover_target | length) > 0 }}"
-            then:
-              - service: cover.close_cover
-                target:
-                  entity_id: !input cover_target
+  - if:
+      - condition: template
+        value_template: "{{ (inputs.cover_target | length) > 0 }}"
+    then:
+      - service: cover.close_cover
+        target:
+          entity_id: !input cover_target
   - service: notify.notify
     data:
       title: "{{ inputs.message_prefix }}"
       message: >
-        Vento = {{ wind_speed }} km/h (raffiche {{ wind_gusts }} km/h) ≥ soglia {{ threshold }} km/h.
-        Ritraggo la tenda per sicurezza.
+        Vento = {{ wind_speed }} km/h (raffiche {{ wind_gusts }} km/h) ≥ soglia {{ threshold }} km/h. Ritraggo la tenda.
 mode: single

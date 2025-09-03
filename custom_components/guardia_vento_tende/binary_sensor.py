@@ -1,35 +1,32 @@
 
 from __future__ import annotations
 from typing import Any
-
 import logging
+
 from homeassistant.components.binary_sensor import BinarySensorEntity, BinarySensorDeviceClass
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
-from .const import (
-    DOMAIN, CONF_THRESHOLD, CONF_CYCLES_ABOVE, CONF_CYCLES_BELOW
-)
-from .coordinator import WindDataCoordinator
+from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities):
-    coordinator: WindDataCoordinator = hass.data[DOMAIN][entry.entry_id]
-    threshold = float(entry.options.get(CONF_THRESHOLD, entry.data.get(CONF_THRESHOLD, 35.0)))
-    cycles_above = int(entry.options.get(CONF_CYCLES_ABOVE, entry.data.get(CONF_CYCLES_ABOVE, 2)))
-    cycles_below = int(entry.options.get(CONF_CYCLES_BELOW, entry.data.get(CONF_CYCLES_BELOW, 2)))
+    coordinator = hass.data[DOMAIN][entry.entry_id]
+    threshold = float(entry.options.get("threshold_kmh", entry.data.get("threshold_kmh", 35.0)))
+    cycles_above = int(entry.options.get("cycles_above_to_trigger", entry.data.get("cycles_above_to_trigger", 2)))
+    cycles_below = int(entry.options.get("cycles_below_to_clear", entry.data.get("cycles_below_to_clear", 2)))
     async_add_entities([AwningsWindAlertBinarySensor(coordinator, threshold, cycles_above, cycles_below)])
 
-class AwningsWindAlertBinarySensor(CoordinatorEntity[WindDataCoordinator], BinarySensorEntity):
+class AwningsWindAlertBinarySensor(CoordinatorEntity, BinarySensorEntity):
     _attr_has_entity_name = True
     _attr_name = "Allerta vento tende"
     _attr_icon = "mdi:alarm-light"
     _attr_device_class = BinarySensorDeviceClass.SAFETY
     _attr_unique_id = "guardia_vento_tende_alert"
 
-    def __init__(self, coordinator: WindDataCoordinator, threshold: float, cycles_above: int, cycles_below: int) -> None:
+    def __init__(self, coordinator, threshold: float, cycles_above: int, cycles_below: int) -> None:
         super().__init__(coordinator)
         self._threshold = float(threshold)
         self._cycles_above_needed = max(1, int(cycles_above))
@@ -57,7 +54,8 @@ class AwningsWindAlertBinarySensor(CoordinatorEntity[WindDataCoordinator], Binar
         }
 
     def _recompute_state(self) -> None:
-        speed = self.coordinator.data.get("wind_speed_kmh") if self.coordinator.data else None
+        d = self.coordinator.data or {}
+        speed = d.get("wind_speed_kmh")
         if speed is None:
             return
         if float(speed) >= self._threshold:
@@ -65,18 +63,17 @@ class AwningsWindAlertBinarySensor(CoordinatorEntity[WindDataCoordinator], Binar
             self._below_counter = 0
             if not self._state_on and self._above_counter >= self._cycles_above_needed:
                 self._state_on = True
-                _LOGGER.info("Allerta vento ATTIVA: velocità %.1f km/h ≥ soglia %.1f per %d cicli", float(speed), self._threshold, self._cycles_above_needed)
+                _LOGGER.info("Allerta vento ATTIVA: %.1f km/h ≥ soglia %.1f per %d cicli", float(speed), self._threshold, self._cycles_above_needed)
         else:
             self._below_counter += 1
             self._above_counter = 0
             if self._state_on and self._below_counter >= self._cycles_below_needed:
                 self._state_on = False
-                _LOGGER.info("Allerta vento DISATTIVATA: velocità %.1f km/h < soglia %.1f per %d cicli", float(speed), self._threshold, self._cycles_below_needed)
-
-    async def async_added_to_hass(self) -> None:
-        await super().async_added_to_hass()
-        self.async_on_remove(self.coordinator.async_add_listener(self._handle_coordinator_update))
+                _LOGGER.info("Allerta vento DISATTIVATA: %.1f km/h < soglia %.1f per %d cicli", float(speed), self._threshold, self._cycles_below_needed)
 
     def _handle_coordinator_update(self) -> None:
         self._recompute_state()
         self.async_write_ha_state()
+
+    async def async_added_to_hass(self) -> None:
+        self.async_on_remove(self.coordinator.async_add_listener(self._handle_coordinator_update))

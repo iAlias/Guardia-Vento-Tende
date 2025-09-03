@@ -29,7 +29,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         _LOGGER.info("Manual refresh requested via service %s", SERVICE_REFRESH)
         await coordinator.async_request_refresh()
 
-    # Register the refresh service only once
     if not hass.services.has_service(DOMAIN, SERVICE_REFRESH):
         hass.services.async_register(DOMAIN, SERVICE_REFRESH, _handle_refresh)
 

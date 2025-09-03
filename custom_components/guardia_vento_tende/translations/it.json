@@ -15,8 +15,6 @@
           "cycles_below_to_clear": "Cicli sotto soglia per disattivare"
         }
       }
-    },
-    "abort": {},
-    "error": {}
+    }
   }
 }

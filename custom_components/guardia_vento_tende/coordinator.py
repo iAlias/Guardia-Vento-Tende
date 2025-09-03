@@ -38,12 +38,12 @@ async def create_coordinator(hass: HomeAssistant, entry: ConfigEntry) -> WindDat
     data = entry.data
     options = entry.options
 
-    use_home = options.get(CONF_USE_HOME_COORDS, data.get(CONF_USE_HOME_COORDS, True))
+    use_home = options.get("use_home_coordinates", data.get("use_home_coordinates", True))
 
-    lat = (options.get(CONF_LAT) if not use_home else hass.config.latitude) or hass.config.latitude
-    lon = (options.get(CONF_LON) if not use_home else hass.config.longitude) or hass.config.longitude
+    lat = (options.get("latitude") if not use_home else hass.config.latitude) or hass.config.latitude
+    lon = (options.get("longitude") if not use_home else hass.config.longitude) or hass.config.longitude
 
-    scan_int = int(options.get(CONF_SCAN_INTERVAL, data.get(CONF_SCAN_INTERVAL, 300)))
+    scan_int = int(options.get("scan_interval", data.get("scan_interval", 300)))
     _LOGGER.debug("Coordinator setup lat=%s lon=%s scan_interval=%s", lat, lon, scan_int)
 
     coordinator = WindDataCoordinator(hass, float(lat), float(lon), scan_int)

@@ -1,5 +1,5 @@
 {
-  "title": "Awnings Wind Guard (IT)",
+  "title": "Guardia Vento Tende",
   "config": {
     "step": {
       "user": {
@@ -15,8 +15,6 @@
           "cycles_below_to_clear": "Cycles below threshold to clear"
         }
       }
-    },
-    "abort": {},
-    "error": {}
+    }
   }
 }
